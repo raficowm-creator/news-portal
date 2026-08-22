@@ -1,6 +1,6 @@
 {
   "name": "news-portal",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -23,6 +23,8 @@
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-switch": "^1.1.1",
+    "@react-three/drei": "^9.108.0",
+    "@react-three/fiber": "^8.17.6",
     "@tiptap/extension-image": "^2.6.6",
     "@tiptap/extension-link": "^2.6.6",
     "@tiptap/extension-placeholder": "^2.6.6",
@@ -44,6 +46,7 @@
     "react-fast-marquee": "^1.6.5",
     "react-hot-toast": "^2.4.1",
     "recharts": "^2.12.7",
+    "three": "^r128",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"
@@ -54,6 +57,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/three": "^r128",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
     "prisma": "^5.14.0",
