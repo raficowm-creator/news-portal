@@ -1,42 +1,10 @@
 # News Portal
 
-Next.js 14 news website with a mobile-friendly admin panel (shadcn/ui), TipTap editor, Cloudinary uploads, charts, dark mode, and toasts.
+Next.js 14 news site with a full homepage and admin CMS.
 
-**Repo:** https://github.com/raficowm-creator/news-portal
+Repo: https://github.com/raficowm-creator/news-portal
 
-## New packages (already in package.json)
-
-Install everything with:
-
-```bash
-npm install
-```
-
-These were added for the admin upgrade:
-
-```bash
-npm install class-variance-authority clsx tailwind-merge lucide-react tailwindcss-animate next-themes react-hot-toast recharts cloudinary @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-label @radix-ui/react-select @radix-ui/react-separator @radix-ui/react-slot @radix-ui/react-switch @tiptap/react @tiptap/pm @tiptap/starter-kit @tiptap/extension-image @tiptap/extension-link @tiptap/extension-placeholder
-
-npm install -D @tailwindcss/typography
-```
-
-## Environment variables
-
-Copy `.env.example` to `.env`:
-
-```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="generate-a-strong-secret"
-
-CLOUDINARY_CLOUD_NAME="your-cloud-name"
-CLOUDINARY_API_KEY="your-api-key"
-CLOUDINARY_API_SECRET="your-api-secret"
-```
-
-Get Cloudinary keys from [cloudinary.com](https://cloudinary.com) → Dashboard.
-
-## Setup
+## After pull
 
 ```bash
 npm install
@@ -46,19 +14,33 @@ npx prisma db seed
 npm run dev
 ```
 
-Default admin: `admin@example.com` / `admin123`
+Admin: `admin@example.com` / `admin123`
 
-## Admin features
+## Homepage features
 
-- Responsive shadcn/ui layout
-- Mobile sidebar as a drawer (hamburger menu)
-- TipTap rich text editor on article create/edit
-- Cloudinary image upload (plus URL fallback)
-- Dashboard charts (Recharts)
-- Search, status filter, and pagination on articles
-- Dark mode (next-themes)
-- Success/error toasts (react-hot-toast)
+1. Breaking news ticker (`react-fast-marquee`) — mark articles **Breaking** in admin
+2. Featured slider (`embla-carousel-react`) — mark **Featured**
+3. Trending sidebar — `viewCount` increments on article view
+4. Category tabs — `/api/articles?category=`
+5. Latest news grid with thumbnail, date, badge, author
+6. Newsletter signup — `Subscriber` model
+7. Social links — Admin → Settings
+8. Dark mode toggle in header (`next-themes`)
+9. Header search with autosuggest
+10. Popular tags
+11. Weather widget — set `OPENWEATHER_API_KEY`
+12. Video news — YouTube URL on article
+13. Today's date in header
+14. Reading progress bar on article pages
+15. Related articles
+16. Ad slots (header/sidebar/footer HTML in Settings)
+17. Poll widget — Admin → Polls
+18. Comments (login required)
+19. Don't miss (top viewed)
+20. Sticky navbar
 
-## Prisma
+## New packages
 
-`prisma/schema.prisma` uses **PostgreSQL**. Set `DATABASE_URL` to a Postgres/Neon connection string before `prisma db push`.
+```bash
+npm install react-fast-marquee embla-carousel-react embla-carousel-autoplay
+```
