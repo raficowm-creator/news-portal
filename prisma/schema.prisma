@@ -19,6 +19,7 @@ model User {
   passwordHash String
   role         Role      @default(USER)
   articles     Article[]
+  comments     Comment[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -32,18 +33,69 @@ model Category {
   updatedAt DateTime  @updatedAt
 }
 
+model Tag {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  articles  Article[]
+}
+
 model Article {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
-  slug        String   @unique
+  slug        String    @unique
   excerpt     String
   content     String
   imageUrl    String?
-  published   Boolean  @default(false)
+  videoUrl    String?
+  published   Boolean   @default(false)
+  breaking    Boolean   @default(false)
+  featured    Boolean   @default(false)
+  viewCount   Int       @default(0)
   authorId    String
   categoryId  String
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  tags        Tag[]
+  comments    Comment[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  articleId String
+  userId    String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @default("")
+}
+
+model Poll {
+  id        String       @id @default(cuid())
+  question  String
+  active    Boolean      @default(true)
+  options   PollOption[]
+  createdAt DateTime     @default(now())
+}
+
+model PollOption {
+  id     String @id @default(cuid())
+  label  String
+  votes  Int    @default(0)
+  pollId String
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
 }
