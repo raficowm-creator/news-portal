@@ -1,54 +1,45 @@
 import Link from "next/link";
-import type { Article, Category, User } from "@prisma/client";
-
-type ArticleWithRelations = Article & {
-  category: Category;
-  author: Pick<User, "name">;
-};
+import { Badge } from "@/components/ui/badge";
 
 export default function ArticleCard({
   article,
   large = false,
 }: {
-  article: ArticleWithRelations;
+  article: {
+    title: string;
+    slug: string;
+    excerpt: string;
+    imageUrl?: string | null;
+    createdAt: string | Date;
+    category: { name: string; slug: string };
+    author: { name: string };
+  };
   large?: boolean;
 }) {
   return (
-    <div
-      className={`border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition ${
-        large ? "md:flex" : ""
-      }`}
-    >
+    <article className={`overflow-hidden rounded-lg border bg-card shadow-sm transition hover:shadow-md ${large ? "md:flex" : ""}`}>
       {article.imageUrl && (
-        <img
-          src={article.imageUrl}
-          alt={article.title}
-          className={`w-full object-cover ${
-            large ? "md:w-1/2 h-64 md:h-auto" : "h-40"
-          }`}
-        />
+        <Link href={`/articles/${article.slug}`} className={large ? "md:w-1/2" : "block"}>
+          <img
+            src={article.imageUrl}
+            alt={article.title}
+            className={`w-full object-cover ${large ? "h-64 md:h-full" : "h-44"}`}
+          />
+        </Link>
       )}
       <div className="p-4">
-        <Link href={`/articles/${article.slug}`} className="block">
-          <h2
-            className={`font-bold hover:text-blue-600 ${
-              large ? "text-2xl" : "text-xl"
-            }`}
-          >
-            {article.title}
-          </h2>
-        </Link>
-        <p className="text-gray-600 mt-2">{article.excerpt}</p>
-        <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
-          <Link
-            href={`/category/${article.category.slug}`}
-            className="text-blue-600 hover:underline"
-          >
-            {article.category.name}
-          </Link>
-          <span>{article.author.name}</span>
+        <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <Badge variant="secondary">
+            <Link href={`/category/${article.category.slug}`}>{article.category.name}</Link>
+          </Badge>
+          <span>{new Date(article.createdAt).toLocaleDateString()}</span>
         </div>
+        <Link href={`/articles/${article.slug}`}>
+          <h2 className={`font-bold hover:text-primary ${large ? "text-2xl" : "text-lg"}`}>{article.title}</h2>
+        </Link>
+        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{article.excerpt}</p>
+        <p className="mt-3 text-xs text-muted-foreground">By {article.author.name}</p>
       </div>
-    </div>
+    </article>
   );
 }
