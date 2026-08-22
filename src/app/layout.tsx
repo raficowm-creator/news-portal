@@ -1,6 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import SessionProvider from "@/components/SessionProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "react-hot-toast";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -17,9 +19,14 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <SessionProvider session={session}>{children}</SessionProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SessionProvider session={session}>
+            {children}
+            <Toaster position="top-right" />
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

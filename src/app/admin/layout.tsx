@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import AdminSidebar from "@/components/AdminSidebar";
+import AdminShell from "@/components/AdminShell";
 
 export default async function AdminLayout({
   children,
@@ -14,10 +14,5 @@ export default async function AdminLayout({
     redirect("/login?error=unauthorized");
   }
 
-  return (
-    <div className="flex min-h-screen">
-      <AdminSidebar />
-      <main className="flex-1 bg-gray-100 p-8">{children}</main>
-    </div>
-  );
+  return <AdminShell userName={session.user?.name}>{children}</AdminShell>;
 }
