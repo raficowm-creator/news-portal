@@ -1,134 +1,64 @@
 # News Portal
 
-A complete Next.js news website with:
+Next.js 14 news website with a mobile-friendly admin panel (shadcn/ui), TipTap editor, Cloudinary uploads, charts, dark mode, and toasts.
 
-- Public news homepage, category pages, article pages, search
-- User login / register (NextAuth credentials)
-- Admin panel to manage articles, categories, and users
-- Prisma + SQLite database, Tailwind CSS, TypeScript
+**Repo:** https://github.com/raficowm-creator/news-portal
 
-## Tech Stack
+## New packages (already in package.json)
 
-- Next.js 14 (App Router)
-- TypeScript
-- Tailwind CSS
-- NextAuth v4 (Credentials)
-- Prisma ORM + SQLite
-- Zod validation
-- Server Actions for admin CRUD
-
-## Setup
-
-1. Clone the repository
-
-```bash
-git clone https://github.com/raficowm-creator/news-portal.git
-cd news-portal
-```
-
-2. Install dependencies
+Install everything with:
 
 ```bash
 npm install
 ```
 
-3. Create environment file
+These were added for the admin upgrade:
 
 ```bash
-cp .env.example .env
+npm install class-variance-authority clsx tailwind-merge lucide-react tailwindcss-animate next-themes react-hot-toast recharts cloudinary @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-label @radix-ui/react-select @radix-ui/react-separator @radix-ui/react-slot @radix-ui/react-switch @tiptap/react @tiptap/pm @tiptap/starter-kit @tiptap/extension-image @tiptap/extension-link @tiptap/extension-placeholder
+
+npm install -D @tailwindcss/typography
 ```
 
-Edit `.env` and set a strong `NEXTAUTH_SECRET` (you can generate one with `openssl rand -base64 32`).
+## Environment variables
 
-4. Initialize the database and seed data
+Copy `.env.example` to `.env`:
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="generate-a-strong-secret"
+
+CLOUDINARY_CLOUD_NAME="your-cloud-name"
+CLOUDINARY_API_KEY="your-api-key"
+CLOUDINARY_API_SECRET="your-api-secret"
+```
+
+Get Cloudinary keys from [cloudinary.com](https://cloudinary.com) → Dashboard.
+
+## Setup
 
 ```bash
+npm install
+cp .env.example .env
 npx prisma db push
 npx prisma db seed
-# or: npm run db:seed
-```
-
-5. Run the development server
-
-```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Default admin: `admin@example.com` / `admin123`
 
-## Default Admin Credentials
+## Admin features
 
-```
-Email: admin@example.com
-Password: admin123
-```
+- Responsive shadcn/ui layout
+- Mobile sidebar as a drawer (hamburger menu)
+- TipTap rich text editor on article create/edit
+- Cloudinary image upload (plus URL fallback)
+- Dashboard charts (Recharts)
+- Search, status filter, and pagination on articles
+- Dark mode (next-themes)
+- Success/error toasts (react-hot-toast)
 
-## Project Structure
+## Prisma
 
-```
-news-portal/
-├── prisma/
-│   ├── schema.prisma
-│   └── seed.ts
-├── src/
-│   ├── app/
-│   │   ├── (public)/
-│   │   │   ├── layout.tsx
-│   │   │   ├── page.tsx
-│   │   │   ├── articles/[slug]/page.tsx
-│   │   │   ├── category/[slug]/page.tsx
-│   │   │   ├── search/page.tsx
-│   │   │   ├── login/page.tsx
-│   │   │   └── register/page.tsx
-│   │   ├── admin/
-│   │   │   ├── layout.tsx
-│   │   │   ├── page.tsx
-│   │   │   ├── articles/
-│   │   │   ├── categories/
-│   │   │   └── users/
-│   │   ├── api/
-│   │   │   ├── auth/[...nextauth]/route.ts
-│   │   │   └── register/route.ts
-│   │   ├── layout.tsx
-│   │   └── globals.css
-│   ├── components/
-│   ├── lib/
-│   │   ├── prisma.ts
-│   │   ├── auth.ts
-│   │   └── actions/
-│   ├── middleware.ts
-│   └── types/next-auth.d.ts
-├── .env.example
-├── package.json
-├── tailwind.config.ts
-├── postcss.config.js
-├── tsconfig.json
-└── next.config.js
-```
-
-## Features
-
-### Public
-- Homepage with featured + latest articles
-- Category listing pages
-- Individual article pages
-- Search
-- Login / Register
-
-### Admin (role-protected)
-- Dashboard with counts
-- CRUD for Articles
-- CRUD for Categories
-- View users and change roles (USER / ADMIN)
-
-## Production Notes
-
-- Sanitize HTML content before rendering (e.g. with `sanitize-html`)
-- Prefer PostgreSQL over SQLite for production
-- Use a proper secret for `NEXTAUTH_SECRET`
-- Add image upload support instead of URL-only
-- Add pagination, rate limiting, and a rich text editor as needed
-
-## License
-
-MIT
+`prisma/schema.prisma` uses **PostgreSQL**. Set `DATABASE_URL` to a Postgres/Neon connection string before `prisma db push`.
