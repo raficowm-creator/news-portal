@@ -29,8 +29,12 @@ export default function ArticleForm({
     excerpt: string;
     content: string;
     imageUrl?: string | null;
+    videoUrl?: string | null;
     categoryId: string;
     published: boolean;
+    breaking?: boolean;
+    featured?: boolean;
+    tags?: string;
   };
   submitLabel: string;
 }) {
@@ -39,10 +43,12 @@ export default function ArticleForm({
   const [excerpt, setExcerpt] = useState(defaultValues?.excerpt ?? "");
   const [content, setContent] = useState(defaultValues?.content ?? "");
   const [imageUrl, setImageUrl] = useState(defaultValues?.imageUrl ?? "");
-  const [categoryId, setCategoryId] = useState(
-    defaultValues?.categoryId || categories[0]?.id || ""
-  );
+  const [videoUrl, setVideoUrl] = useState(defaultValues?.videoUrl ?? "");
+  const [tags, setTags] = useState(defaultValues?.tags ?? "");
+  const [categoryId, setCategoryId] = useState(defaultValues?.categoryId || categories[0]?.id || "");
   const [published, setPublished] = useState(defaultValues?.published ?? false);
+  const [breaking, setBreaking] = useState(defaultValues?.breaking ?? false);
+  const [featured, setFeatured] = useState(defaultValues?.featured ?? false);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(formData: FormData) {
@@ -51,6 +57,8 @@ export default function ArticleForm({
       return;
     }
     formData.set("categoryId", categoryId);
+    formData.set("videoUrl", videoUrl);
+    formData.set("tags", tags);
     setPending(true);
     try {
       await action(formData);
@@ -78,53 +86,38 @@ export default function ArticleForm({
               }}
             />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="slug">Slug</Label>
-            <Input
-              id="slug"
-              name="slug"
-              required
-              pattern="[a-z0-9-]+"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-            />
+            <Input id="slug" name="slug" required pattern="[a-z0-9-]+" value={slug} onChange={(e) => setSlug(e.target.value)} />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="excerpt">Excerpt</Label>
-            <Textarea
-              id="excerpt"
-              name="excerpt"
-              required
-              rows={3}
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-            />
+            <Textarea id="excerpt" name="excerpt" required rows={3} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} />
           </div>
-
           <div className="space-y-2">
             <Label>Content</Label>
             <input type="hidden" name="content" value={content} />
             <TiptapEditor value={content} onChange={setContent} />
           </div>
-
           <div className="space-y-2">
             <Label>Cover image</Label>
             <input type="hidden" name="imageUrl" value={imageUrl} />
             <ImageUpload value={imageUrl} onChange={setImageUrl} />
           </div>
-
+          <div className="space-y-2">
+            <Label htmlFor="videoUrl">YouTube video URL</Label>
+            <Input id="videoUrl" name="videoUrl" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags (comma separated)</Label>
+            <Input id="tags" name="tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="politics, election, world" />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="categoryId">Category</Label>
             <input type="hidden" name="categoryId" value={categoryId} />
             {categories.length === 0 ? (
               <p className="text-sm text-destructive">
-                No categories yet.{" "}
-                <Link href="/admin/categories/new" className="underline">
-                  Create a category
-                </Link>{" "}
-                first.
+                No categories yet. <Link href="/admin/categories/new" className="underline">Create a category</Link> first.
               </p>
             ) : (
               <select
@@ -144,13 +137,23 @@ export default function ArticleForm({
               </select>
             )}
           </div>
-
-          <label className="flex items-center gap-3">
-            <Switch checked={published} onCheckedChange={setPublished} />
-            <input type="hidden" name="published" value={published ? "on" : ""} />
-            <span className="text-sm">Published</span>
-          </label>
-
+          <div className="grid gap-3 sm:grid-cols-3">
+            <label className="flex items-center gap-3">
+              <Switch checked={published} onCheckedChange={setPublished} />
+              <input type="hidden" name="published" value={published ? "on" : ""} />
+              <span className="text-sm">Published</span>
+            </label>
+            <label className="flex items-center gap-3">
+              <Switch checked={breaking} onCheckedChange={setBreaking} />
+              <input type="hidden" name="breaking" value={breaking ? "on" : ""} />
+              <span className="text-sm">Breaking</span>
+            </label>
+            <label className="flex items-center gap-3">
+              <Switch checked={featured} onCheckedChange={setFeatured} />
+              <input type="hidden" name="featured" value={featured ? "on" : ""} />
+              <span className="text-sm">Featured</span>
+            </label>
+          </div>
           <Button type="submit" disabled={pending || !categoryId}>
             {pending ? "Saving..." : submitLabel}
           </Button>

@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, FolderOpen, LayoutDashboard, Newspaper, Users } from "lucide-react";
+import { BarChart3, FileText, FolderOpen, LayoutDashboard, Newspaper, Settings, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/articles", label: "Articles", icon: FileText },
   { href: "/admin/categories", label: "Categories", icon: FolderOpen },
+  { href: "/admin/polls", label: "Polls", icon: BarChart3 },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/", label: "View site", icon: Newspaper },
 ];

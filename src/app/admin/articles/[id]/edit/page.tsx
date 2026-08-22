@@ -9,7 +9,10 @@ export default async function EditArticlePage({
 }: {
   params: { id: string };
 }) {
-  const article = await prisma.article.findUnique({ where: { id: params.id } });
+  const article = await prisma.article.findUnique({
+    where: { id: params.id },
+    include: { tags: true },
+  });
   if (!article) notFound();
 
   const categories = await ensureCategories();
@@ -28,8 +31,12 @@ export default async function EditArticlePage({
           excerpt: article.excerpt,
           content: article.content,
           imageUrl: article.imageUrl,
+          videoUrl: article.videoUrl,
           categoryId: article.categoryId,
           published: article.published,
+          breaking: article.breaking,
+          featured: article.featured,
+          tags: article.tags.map((t) => t.name).join(", "),
         }}
       />
     </div>
