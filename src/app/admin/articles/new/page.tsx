@@ -1,9 +1,9 @@
-import { prisma } from "@/lib/prisma";
 import { createArticle } from "@/lib/actions/articleActions";
+import { ensureCategories } from "@/lib/ensureCategories";
 import ArticleForm from "@/components/ArticleForm";
 
 export default async function NewArticlePage() {
-  const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
+  const categories = await ensureCategories();
 
   return (
     <div className="mx-auto max-w-3xl">

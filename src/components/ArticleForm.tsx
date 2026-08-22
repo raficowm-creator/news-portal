@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import toast from "react-hot-toast";
 import { slugify } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -38,10 +39,18 @@ export default function ArticleForm({
   const [excerpt, setExcerpt] = useState(defaultValues?.excerpt ?? "");
   const [content, setContent] = useState(defaultValues?.content ?? "");
   const [imageUrl, setImageUrl] = useState(defaultValues?.imageUrl ?? "");
+  const [categoryId, setCategoryId] = useState(
+    defaultValues?.categoryId || categories[0]?.id || ""
+  );
   const [published, setPublished] = useState(defaultValues?.published ?? false);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(formData: FormData) {
+    if (!categoryId) {
+      toast.error("Please select a category");
+      return;
+    }
+    formData.set("categoryId", categoryId);
     setPending(true);
     try {
       await action(formData);
@@ -84,7 +93,14 @@ export default function ArticleForm({
 
           <div className="space-y-2">
             <Label htmlFor="excerpt">Excerpt</Label>
-            <Textarea id="excerpt" name="excerpt" required rows={3} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} />
+            <Textarea
+              id="excerpt"
+              name="excerpt"
+              required
+              rows={3}
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+            />
           </div>
 
           <div className="space-y-2">
@@ -101,19 +117,32 @@ export default function ArticleForm({
 
           <div className="space-y-2">
             <Label htmlFor="categoryId">Category</Label>
-            <select
-              id="categoryId"
-              name="categoryId"
-              required
-              defaultValue={defaultValues?.categoryId}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
+            <input type="hidden" name="categoryId" value={categoryId} />
+            {categories.length === 0 ? (
+              <p className="text-sm text-destructive">
+                No categories yet.{" "}
+                <Link href="/admin/categories/new" className="underline">
+                  Create a category
+                </Link>{" "}
+                first.
+              </p>
+            ) : (
+              <select
+                id="categoryId"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="" disabled>
+                  Select a category
                 </option>
-              ))}
-            </select>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <label className="flex items-center gap-3">
@@ -122,7 +151,7 @@ export default function ArticleForm({
             <span className="text-sm">Published</span>
           </label>
 
-          <Button type="submit" disabled={pending}>
+          <Button type="submit" disabled={pending || !categoryId}>
             {pending ? "Saving..." : submitLabel}
           </Button>
         </form>

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { updateArticle } from "@/lib/actions/articleActions";
+import { ensureCategories } from "@/lib/ensureCategories";
 import ArticleForm from "@/components/ArticleForm";
 
 export default async function EditArticlePage({
@@ -11,7 +12,7 @@ export default async function EditArticlePage({
   const article = await prisma.article.findUnique({ where: { id: params.id } });
   if (!article) notFound();
 
-  const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
+  const categories = await ensureCategories();
   const updateArticleWithId = updateArticle.bind(null, article.id);
 
   return (
