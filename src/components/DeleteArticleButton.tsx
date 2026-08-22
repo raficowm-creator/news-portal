@@ -2,6 +2,7 @@
 
 import { deleteArticle } from "@/lib/actions/articleActions";
 import { useTransition } from "react";
+import toast from "react-hot-toast";
 
 export default function DeleteArticleButton({ id }: { id: string }) {
   const [pending, startTransition] = useTransition();
@@ -9,12 +10,18 @@ export default function DeleteArticleButton({ id }: { id: string }) {
   return (
     <button
       onClick={() => {
-        if (confirm("Are you sure you want to delete this article?")) {
-          startTransition(() => deleteArticle(id));
-        }
+        if (!confirm("Delete this article?")) return;
+        startTransition(async () => {
+          try {
+            await deleteArticle(id);
+            toast.success("Article deleted");
+          } catch {
+            toast.error("Delete failed");
+          }
+        });
       }}
       disabled={pending}
-      className="text-red-600 hover:underline disabled:opacity-50"
+      className="text-sm text-destructive hover:underline disabled:opacity-50"
     >
       {pending ? "Deleting..." : "Delete"}
     </button>

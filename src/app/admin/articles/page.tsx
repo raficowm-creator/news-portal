@@ -1,83 +1,132 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
 import DeleteArticleButton from "@/components/DeleteArticleButton";
 
-export default async function AdminArticlesPage() {
-  const articles = await prisma.article.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      category: true,
-      author: { select: { name: true } },
-    },
-  });
+const PAGE_SIZE = 10;
+
+export default async function AdminArticlesPage({
+  searchParams,
+}: {
+  searchParams: { q?: string; page?: string; status?: string };
+}) {
+  const q = searchParams.q || "";
+  const page = Math.max(1, Number(searchParams.page) || 1);
+  const status = searchParams.status || "all";
+
+  const where = {
+    AND: [
+      q
+        ? {
+            OR: [
+              { title: { contains: q, mode: "insensitive" as const } },
+              { slug: { contains: q, mode: "insensitive" as const } },
+            ],
+          }
+        : {},
+      status === "published" ? { published: true } : status === "draft" ? { published: false } : {},
+    ],
+  };
+
+  const [total, articles] = await Promise.all([
+    prisma.article.count({ where }),
+    prisma.article.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: {
+        category: true,
+        author: { select: { name: true } },
+      },
+    }),
+  ]);
+
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Articles</h1>
-        <Link
-          href="/admin/articles/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          New Article
-        </Link>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold md:text-3xl">Articles</h1>
+        <Button asChild>
+          <Link href="/admin/articles/new">New Article</Link>
+        </Button>
       </div>
 
-      <div className="bg-white rounded shadow overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Title
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Category
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Author
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+      <form className="flex flex-col gap-2 sm:flex-row">
+        <Input name="q" defaultValue={q} placeholder="Search title or slug..." className="sm:max-w-xs" />
+        <select
+          name="status"
+          defaultValue={status}
+          className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+        >
+          <option value="all">All</option>
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
+        <Button type="submit" variant="secondary">
+          Filter
+        </Button>
+      </form>
+
+      <Card className="overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead className="hidden md:table-cell">Category</TableHead>
+              <TableHead className="hidden lg:table-cell">Author</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {articles.map((article) => (
-              <tr key={article.id}>
-                <td className="px-6 py-4 whitespace-nowrap">{article.title}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {article.category.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {article.author.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 py-1 rounded text-xs ${
-                      article.published
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
+              <TableRow key={article.id}>
+                <TableCell className="font-medium">{article.title}</TableCell>
+                <TableCell className="hidden md:table-cell">{article.category.name}</TableCell>
+                <TableCell className="hidden lg:table-cell">{article.author.name}</TableCell>
+                <TableCell>
+                  <Badge variant={article.published ? "success" : "warning"}>
                     {article.published ? "Published" : "Draft"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap space-x-2">
-                  <Link
-                    href={`/admin/articles/${article.id}/edit`}
-                    className="text-blue-600 hover:underline"
-                  >
+                  </Badge>
+                </TableCell>
+                <TableCell className="space-x-2 whitespace-nowrap">
+                  <Link href={`/admin/articles/${article.id}/edit`} className="text-sm text-primary hover:underline">
                     Edit
                   </Link>
                   <DeleteArticleButton id={article.id} />
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
+      </Card>
+
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">
+          {total} results · page {page} of {pages}
+        </span>
+        <div className="flex gap-2">
+          {page > 1 && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/admin/articles?q=${encodeURIComponent(q)}&status=${status}&page=${page - 1}`}>
+                Previous
+              </Link>
+            </Button>
+          )}
+          {page < pages && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/admin/articles?q=${encodeURIComponent(q)}&status=${status}&page=${page + 1}`}>
+                Next
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

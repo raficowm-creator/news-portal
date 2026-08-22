@@ -1,82 +1,62 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { deleteCategory } from "@/lib/actions/categoryActions";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default async function AdminCategoriesPage() {
   const categories = await prisma.category.findMany({
     include: { _count: { select: { articles: true } } },
+    orderBy: { name: "asc" },
   });
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Categories</h1>
-        <Link
-          href="/admin/categories/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          New Category
-        </Link>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold md:text-3xl">Categories</h1>
+        <Button asChild>
+          <Link href="/admin/categories/new">New Category</Link>
+        </Button>
       </div>
 
-      <div className="bg-white rounded shadow overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Slug
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Articles
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+      <Card className="overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Slug</TableHead>
+              <TableHead>Articles</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {categories.map((category) => (
-              <tr key={category.id}>
-                <td className="px-6 py-4 whitespace-nowrap">{category.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{category.slug}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {category._count.articles}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap space-x-2">
-                  <Link
-                    href={`/admin/categories/${category.id}/edit`}
-                    className="text-blue-600 hover:underline"
-                  >
+              <TableRow key={category.id}>
+                <TableCell className="font-medium">{category.name}</TableCell>
+                <TableCell>{category.slug}</TableCell>
+                <TableCell>{category._count.articles}</TableCell>
+                <TableCell className="space-x-2">
+                  <Link href={`/admin/categories/${category.id}/edit`} className="text-sm text-primary hover:underline">
                     Edit
                   </Link>
-                  <form
-                    action={deleteCategory.bind(null, category.id)}
-                    className="inline"
-                  >
+                  <form action={deleteCategory.bind(null, category.id)} className="inline">
                     <button
                       type="submit"
-                      className="text-red-600 hover:underline"
+                      className="text-sm text-destructive hover:underline"
                       onClick={(e) => {
-                        if (
-                          !confirm(
-                            "Delete this category and all its articles?"
-                          )
-                        )
-                          e.preventDefault();
+                        if (!confirm("Delete this category and all its articles?")) e.preventDefault();
                       }}
                     >
                       Delete
                     </button>
                   </form>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }
