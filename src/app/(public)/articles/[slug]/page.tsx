@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -12,7 +13,7 @@ import { youtubeEmbed } from "@/lib/youtube";
 
 type ArticleParams = { slug: string };
 
-async function getArticle(slug: string) {
+const getArticle = cache(async (slug: string) => {
   return prisma.article.findUnique({
     where: { slug },
     include: {
@@ -25,7 +26,7 @@ async function getArticle(slug: string) {
       },
     },
   });
-}
+});
 
 export async function generateMetadata({
   params,
@@ -134,11 +135,17 @@ export default async function ArticlePage({
             allowFullScreen
           />
         )}
-        <div className="prose mt-6 max-w-none leading-8 dark:prose-invert" dangerouslySetInnerHTML={{ __html: article.content }} />
+        <div
+          className="prose mt-6 max-w-none leading-8 dark:prose-invert"
+          dangerouslySetInnerHTML={{ __html: article.content }}
+        />
         <CommentSection articleId={article.id} loggedIn={!!session} comments={article.comments} />
       </article>
       {related.length > 0 && (
-        <section className="mx-auto mt-12 max-w-5xl px-4 pb-10 sm:px-6" aria-labelledby="related-heading">
+        <section
+          className="mx-auto mt-12 max-w-5xl px-4 pb-10 sm:px-6"
+          aria-labelledby="related-heading"
+        >
           <h2 id="related-heading" className="mb-4 text-2xl font-bold tracking-tight">
             Related articles
           </h2>
