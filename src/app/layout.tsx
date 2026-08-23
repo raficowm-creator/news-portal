@@ -1,5 +1,5 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import SessionProvider from "@/components/SessionProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "react-hot-toast";
@@ -7,8 +7,21 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "News Portal",
-  description: "A complete news website built with Next.js",
+  title: {
+    default: "News Portal",
+    template: "%s | News Portal",
+  },
+  description: "Latest news, breaking stories and in-depth coverage across categories.",
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#ffffff",
 };
 
 export default async function RootLayout({
