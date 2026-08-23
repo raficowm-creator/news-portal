@@ -21,12 +21,14 @@ async function saveSettings(formData: FormData) {
   for (const key of keys) {
     await upsertSetting(key, String(formData.get(key) || ""));
   }
+  await upsertSetting("auto_news", formData.get("auto_news") === "on" ? "on" : "off");
   revalidatePath("/");
   revalidatePath("/admin/settings");
 }
 
 export default async function SettingsPage() {
   const s = await getSettingsMap();
+  const autoOn = s.auto_news !== "off";
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold md:text-3xl">Settings</h1>
@@ -34,6 +36,13 @@ export default async function SettingsPage() {
         <CardContent className="pt-6">
           <form action={saveSettings} className="space-y-4">
             <Field name="site_name" label="Site name" defaultValue={s.site_name || "NewsPortal"} />
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" name="auto_news" defaultChecked={autoOn} />
+              Auto-post latest news every minute
+            </label>
+            {s.auto_news_last ? (
+              <p className="text-xs text-muted-foreground">Last auto post: {s.auto_news_last}</p>
+            ) : null}
             <Field name="facebook" label="Facebook URL" defaultValue={s.facebook} />
             <Field name="twitter" label="Twitter / X URL" defaultValue={s.twitter} />
             <Field name="instagram" label="Instagram URL" defaultValue={s.instagram} />

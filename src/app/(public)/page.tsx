@@ -1,12 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { getSettingsMap } from "@/lib/settings";
-import ArticleCard from "@/components/ArticleCard";
 import FeaturedSlider from "@/components/FeaturedSlider";
 import CategoryTabs from "@/components/CategoryTabs";
 import WeatherWidget from "@/components/WeatherWidget";
 import PollWidget from "@/components/PollWidget";
+import AutoNewsFeed from "@/components/AutoNewsFeed";
 import Link from "next/link";
 import { youtubeEmbed } from "@/lib/youtube";
+
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const [featured, latest, trending, categories, tags, poll, videos, settings] = await Promise.all([
@@ -49,6 +51,7 @@ export default async function HomePage() {
 
   const slider = featured.length ? featured : latest.slice(0, 3);
   const dontMiss = trending.slice(0, 4);
+  const autoOn = settings.auto_news !== "off";
 
   return (
     <div className="space-y-10">
@@ -56,14 +59,7 @@ export default async function HomePage() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
-          <section>
-            <h2 className="mb-4 text-2xl font-bold">Latest news</h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {latest.map((article) => (
-                <ArticleCard key={article.id} article={article} />
-              ))}
-            </div>
-          </section>
+          <AutoNewsFeed initial={latest} enabled={autoOn} />
 
           <section>
             <h2 className="mb-4 text-2xl font-bold">By category</h2>
