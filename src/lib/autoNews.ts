@@ -46,7 +46,13 @@ function decode(text: string) {
 }
 
 function parseRss(xml: string, categorySlug: string): WireStory[] {
-  const blocks = [...xml.matchAll(/<item\b[\s\S]*?<\/item>/gi)];
+  const blocks: RegExpExecArray[] = [];
+  const itemRegex = /<item\b[\s\S]*?<\/item>/gi;
+  let match: RegExpExecArray | null;
+  while ((match = itemRegex.exec(xml)) !== null) {
+    blocks.push(match);
+  }
+
   return blocks
     .map((m) => {
       const block = m[0];
