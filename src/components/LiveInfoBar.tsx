@@ -35,7 +35,7 @@ export default function LiveInfoBar() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("https://api.open-meteo.com/v1/forecast?latitude=22.3569&longitude=91.7832&current=temperature_2m,weather_code&timezone=Asia%2FDhaka", { next: { revalidate: 900 } as RequestInit })
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=22.3569&longitude=91.7832&current=temperature_2m,weather_code&timezone=Asia%2FDhaka")
       .then((r) => r.json())
       .then((data) => {
         if (!cancelled && data.current) {
