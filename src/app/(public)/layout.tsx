@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
 import BreakingTicker from "@/components/BreakingTicker";
+import LiveInfoBar from "@/components/LiveInfoBar";
 import { prisma } from "@/lib/prisma";
 import { getSettingsMap } from "@/lib/settings";
 
@@ -22,6 +23,7 @@ export default async function PublicLayout({
   return (
     <>
       <Navbar />
+      <LiveInfoBar />
       <BreakingTicker items={breaking} />
       {settings.ad_header ? (
         <div className="container mx-auto px-4 py-3" dangerouslySetInnerHTML={{ __html: settings.ad_header }} />
